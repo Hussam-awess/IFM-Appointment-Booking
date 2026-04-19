@@ -9,8 +9,8 @@ export async function updateSession(request: NextRequest) {
   // With Fluid compute, don't put this client in a global environment
   // variable. Always create a new one on each request.
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key',
     {
       cookies: {
         getAll() {
@@ -36,7 +36,14 @@ export async function updateSession(request: NextRequest) {
   // issues with users being randomly logged out.
 
   // Use getClaims() instead of getUser() for better performance
-  const { data: claimsData } = await supabase.auth.getClaims()
+  let claimsData = null
+  try {
+    const result = await supabase.auth.getClaims()
+    claimsData = result.data
+  } catch (error) {
+    // If Supabase is not configured, skip authentication checks
+    console.warn('Supabase not configured, skipping auth check')
+  }
 
   // Protected routes that require authentication
   if (
