@@ -26,28 +26,22 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      console.log("Starting sign in...")
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
-      console.log("Sign in response:", { data, error })
-
       if (error) {
-        console.error("Sign in error:", error)
         setError(error.message)
         setIsLoading(false)
         return
       }
 
-      console.log("Sign in successful, redirecting...")
       // If successful, redirect immediately
       // The dashboard will handle authentication verification
       router.push("/dashboard")
       router.refresh()
     } catch (err) {
-      console.error("Unexpected error:", err)
       setError("An unexpected error occurred. Please try again.")
       setIsLoading(false)
     }
